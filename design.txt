@@ -1,0 +1,26 @@
+- What additional properties did you add to your models and why?
+ - **User**
+    I added the following fields:
+    1. won to keep track of the total games won by the user.
+    2. total_played to keep track of the total games played by the user.
+    3. win_ratio to fetch user rankings for `get_user_rankings` endpoint.
+
+    When fetching the user rankings, if 2 users have the same win_ratio, the
+    total games played by each user decides who wins. If player1 and player2 both have 0.25
+    as the won ratio and player1 has played 8 games, while player2 has played 16 games,
+    player1 wins.
+
+ - **Game**
+    - Stores unique game states. Associated with User model via KeyProperty.
+    `move_history` stores the history of moves for each game.
+    `answer` stores all the correct letters that the players enters while playing the game.
+    So if the answer contains an 'a' and the user has already entered the letter, the game
+    shows a message that it has been entered already, but the attempts_remaining count does
+    not decrease.
+
+ - **Score**
+    - Records completed games. Associated with Users model via KeyProperty.
+
+- What were some of the trade-offs or struggles you faced when implementing the new game logic?
+
+
