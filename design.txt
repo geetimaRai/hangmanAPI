@@ -22,16 +22,19 @@
     I added the following fields:
     1. attempts_used stores the total attempts use by the user to win or exhaust all attempts,
     whichever happens first.
-    2. attempts stores the maximum number of attempts that the user was intially allowed.
+    2. attempts stores the maximum number of attempts that the user was initially allowed.
     When fetching the high scores for get_high_scores endpoint, if 2 games have the same attempts_used, the
     total attempts for each game decides which game should be ranked higher. If game1 and game2 both have
     3 attempts used, but game1 has total attempts as 6, while game2 has total attempts as 10, game1 is ranked
     higher since it has fewer maximum attempts.
 
 - What were some of the trade-offs or struggles you faced when implementing the new game logic?
-    While Game already has 2 fields attempts and attempts_remaining, and we can find attempts_used when
-    querying for all the top scores, it made sense to create a separate index so that we do not have to
-    perform multiple queries to get to the result. As we scale, we want our queries to be optimized and
+    Game already has 2 fields - attempts and attempts_remaining. To find the attempts_used when
+    querying for all the top scores, we could always calculate it using these 2 fields, by subtracting
+    attempts_remaining from attempts.
+    Still it made sense to create a separate index and add the fields attempts and attempts_used to Score kind
+    so that we do not have to perform multiple queries fetch the results for the top scores.
+    As we scale, we want our queries to be optimized and
     so it made sense to add the 2 fields to Score to fetch the top scores in a single fetch from the
     index table instead of using the fields from Game table (kind).
 

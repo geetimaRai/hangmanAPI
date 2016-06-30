@@ -21,6 +21,13 @@ writes it in all its correct positions. If the suggested letter or number does n
 occur in the word, the endpoint displays the number of attempts the user has remaining. 
 Each game can be retrieved or played by using the path parameter `urlsafe_game_key`.
 
+##Score Keeping:
+Each player has a win_ratio field, which is the ratio of the total number of games the 
+user has won so far to the total number of games the user has played. A player with a
+higher win_ratio is ranked above a player with a lower win_ratio. In case 2 players have
+the same win_ratio, the player with fewer games played wins.
+
+
 ##How To Play:
 1. Visit the API Explorer - by default localhost:8080/_ah/api/explorer.
 2. Go to the `create_user` endpoint and add the user.
@@ -45,7 +52,7 @@ Each game can be retrieved or played by using the path parameter `urlsafe_game_k
  - **create_user**
     - Path: 'user'
     - Method: POST
-    - Parameters: user_name, email (optional)
+    - Parameters: user_name, email
     - Returns: Message confirming creation of the User.
     - Description: Creates a new User. user_name provided must be unique. 
     Raises a ConflictException if a User with that user_name or email already exists.
