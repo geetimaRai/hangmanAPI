@@ -85,7 +85,6 @@ class Score(ndb.Model):
     won = ndb.BooleanProperty(required=True)
     attempts_used = ndb.IntegerProperty(required=True)
     attempts = ndb.IntegerProperty(required=True)
-    answer = ndb.PickleProperty(required=True)
 
     def to_form(self):
         return ScoreForm(user_name=self.user.get().name,

@@ -11,16 +11,28 @@
     player1 wins.
 
  - **Game**
-    - Stores unique game states. Associated with User model via KeyProperty.
-    `move_history` stores the history of moves for each game.
-    `answer` stores all the correct letters that the players enters while playing the game.
+    I added the following fields:
+    1. move_history stores the history of user moves for each game.
+    2. answer stores all the correct letters that the players enters while playing the game.
     So if the answer contains an 'a' and the user has already entered the letter, the game
     shows a message that it has been entered already, but the attempts_remaining count does
     not decrease.
 
  - **Score**
-    - Records completed games. Associated with Users model via KeyProperty.
+    I added the following fields:
+    1. attempts_used stores the total attempts use by the user to win or exhaust all attempts,
+    whichever happens first.
+    2. attempts stores the maximum number of attempts that the user was intially allowed.
+    When fetching the high scores for get_high_scores endpoint, if 2 games have the same attempts_used, the
+    total attempts for each game decides which game should be ranked higher. If game1 and game2 both have
+    3 attempts used, but game1 has total attempts as 6, while game2 has total attempts as 10, game1 is ranked
+    higher since it has fewer maximum attempts.
 
 - What were some of the trade-offs or struggles you faced when implementing the new game logic?
+    While Game already has 2 fields attempts and attempts_remaining, and we can find attempts_used when
+    querying for all the top scores, it made sense to create a separate index so that we do not have to
+    perform multiple queries to get to the result. As we scale, we want our queries to be optimized and
+    so it made sense to add the 2 fields to Score to fetch the top scores in a single fetch from the
+    index table instead of using the fields from Game table (kind).
 
 

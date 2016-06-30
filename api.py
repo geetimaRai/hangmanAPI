@@ -247,15 +247,15 @@ class HangmanApi(remote.Service):
         """Cancel a game in progress. """
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game:
+            # Raise an exception if the game is already over.
             if game.game_over:
+                raise endpoints.BadRequestException('Game is already over!')
+            else:
                 game.key.delete()
                 return StringMessage(
                         message='Game with key {} deleted.'.
                             format(request.urlsafe_game_key)
                 )
-            # Raise an exception if the game is already over.
-            else:
-                raise endpoints.BadRequestException('Game is already over!')
         else:
             # Raise an exception if no such game is found in datastore.
             raise endpoints.NotFoundException('Game not found!')

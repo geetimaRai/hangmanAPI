@@ -22,8 +22,7 @@ class SendReminderEmail(webapp2.RequestHandler):
             user = User.query(User.key == game.user).get()
             subject = 'This is a reminder!'
             body = 'Hello {}, This is a reminder to play your game in progress!'.format(user.name)
-            # This will send test emails, the arguments to send_mail are:
-            # from, to, subject, body
+            # This will send emails to the users who have pending active games.
             mail.send_mail('noreply@{}.appspotmail.com'.
                            format(app_identity.get_application_id()),
                            user.email,
@@ -32,7 +31,7 @@ class SendReminderEmail(webapp2.RequestHandler):
 
 class UpdateAverageMovesRemaining(webapp2.RequestHandler):
     def post(self):
-        """Update game listing announcement in memcache."""
+        """Update average moves remaining in memcache."""
         HangmanApi._cache_average_attempts()
         self.response.set_status(204)
 
