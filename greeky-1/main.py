@@ -3,7 +3,10 @@
 """main.py - This file contains handlers that are called by taskqueue and/or
 cronjobs."""
 import webapp2
-from google.appengine.api import mail, app_identity
+from google.appengine.api import (
+    mail,
+    app_identity,
+)
 
 from api import HangmanApi
 from models.user import User
@@ -19,12 +22,12 @@ class SendReminderEmail(webapp2.RequestHandler):
         users = User.query()
         for user in users:
             # Get all the unfinished user games.
-            games = Game.query(Game.user == user.key).filter(Game.game_over == False)
-            if games:
+            games = Game.query(Game.user == user.key, Game.game_over == False)
+            if games.count() > 0:
                 subject = 'This is a reminder!'
-                body = 'Hello {0}, This is a reminder that you have {1} Hangman games in progress!' \
+                body = 'Hello {0}, This is a reminder that you have Hangman game in progress! ' \
                        'Let\'s play and have some fun!'\
-                    .format(user.name, len(games))
+                    .format(user.name)
                 # This will send emails to the users who have pending active games.
                 mail.send_mail('noreply@{}.appspotmail.com'.
                                format(app_identity.get_application_id()),

@@ -33,9 +33,8 @@
     querying for all the top scores, we could always calculate it using these 2 fields, by subtracting
     attempts_remaining from attempts.
     Still it made sense to create a separate index and add the fields attempts and attempts_used to Score kind
-    so that we do not have to perform multiple queries fetch the results for the top scores.
-    As we scale, we want our queries to be optimized and
-    so it made sense to add the 2 fields to Score to fetch the top scores in a single fetch from the
-    index table instead of using the fields from Game table (kind).
+    so that we do not have to perform multiple queries to fetch the results for the top scores.
+    As we scale, we want our queries to be optimized and so it made sense to add the 2 fields to Score to
+    fetch the top scores in a single fetch from the index table instead of using the fields from Game table (kind).
 
 

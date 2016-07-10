@@ -1,4 +1,3 @@
-from datetime import date
 from protorpc import messages
 from google.appengine.ext import ndb
 
@@ -23,6 +22,7 @@ class User(ndb.Model):
         form.email = self.email
         form.won = self.won
         form.total_played = self.total_played
+        form.win_ratio = self.win_ratio
         return form
 
 
@@ -32,6 +32,7 @@ class UserForm(messages.Message):
     email = messages.StringField(2)
     won = messages.IntegerField(3, required=True)
     total_played = messages.IntegerField(4, required=True)
+    win_ratio = messages.FloatField(5)
 
 
 class UserForms(messages.Message):

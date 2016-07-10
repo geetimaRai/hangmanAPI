@@ -1,7 +1,10 @@
 import endpoints
 from google.appengine.api import memcache
 from google.appengine.api import taskqueue
-from protorpc import remote, messages, message_types
+from protorpc import (
+    remote,
+    messages, message_types,
+)
 
 from models.string import StringMessage
 from models.game import (
@@ -11,8 +14,14 @@ from models.game import (
     GameForms,
     GameHistory,
 )
-from models.score import Score, ScoreForms
-from models.user import User, UserForms
+from models.score import (
+    Score,
+    ScoreForms,
+)
+from models.user import (
+    User,
+    UserForms,
+)
 
 from utils import get_by_urlsafe
 
@@ -114,7 +123,7 @@ class HangmanApi(remote.Service):
             raise endpoints.NotFoundException(
                     'A User with name {} does not exist!'.format(request.user_name))
 
-        if not request.answer:
+        if request.answer is None:
             raise endpoints.BadRequestException(
                     'You must enter an answer to create a new game!')
         try:
@@ -177,9 +186,9 @@ class HangmanApi(remote.Service):
         user = User.query(User.name == game.user.get().name).get()
 
         # Raise an exception if the player enters multiple characters.
-        if not request.move.isalpha() or len(list(request.move)) != 1:
+        if not request.move or not request.move.isalpha() or len(list(request.move)) != 1:
             raise endpoints.BadRequestException(
-                    'You must enter a single character!'
+                    'You must enter a single alphanumeric character!'
             )
 
         # Check if the user has already entered the character.
@@ -188,7 +197,7 @@ class HangmanApi(remote.Service):
             if game.attempts_remaining == 0:
                 game.end_game(False)
                 user.total_played += 1
-                user.win_ratio = user.won / user.total_played
+                user.win_ratio = float("{0:.2f}".format(user.won / float(user.total_played)))
                 message = 'Game Over, You lose!'
             else:
                 message = 'Wrong! You have {} attempts remaining!'.format(game.attempts_remaining)
@@ -203,7 +212,7 @@ class HangmanApi(remote.Service):
             if game.user_answer == game.answer:
                 user.won += 1
                 user.total_played += 1
-                user.win_ratio = user.won / user.total_played
+                user.win_ratio = float("{0:.2f}".format(user.won / float(user.total_played)))
                 game.end_game(True)
                 message = 'You win!'
             else:
@@ -224,10 +233,10 @@ class HangmanApi(remote.Service):
                       path='scores',
                       name='get_scores',
                       http_method='GET')
-    def get_scores(self):
+    def get_scores(self, request):
         """Return all scores.
         Args:
-            None.
+            request: None.
         Returns:
             ScoreForms: Multiple ScoreForm container.
         """
@@ -265,10 +274,10 @@ class HangmanApi(remote.Service):
                       name='get_average_attempts',
                       http_method='GET'
                       )
-    def get_average_attempts(self):
+    def get_average_attempts(self, request):
         """Get the cached average moves remaining
         Args:
-            None.
+            request: VoidMessage.
         Returns:
             StringMessage: A message that is sent to the client, mentioning the
             current average attempts remaining for the active games.
@@ -291,6 +300,8 @@ class HangmanApi(remote.Service):
         Raises:
             endpoints.BadRequestException: If no user for the user_name exists.
         """
+        if request.user_name is None:
+            raise endpoints.BadRequestException('You must enter a user name.')
         user = User.query(User.name == request.user_name).get()
         if not user:
             raise endpoints.BadRequestException('The user {} does not exist!.'.format(request.user_name))
@@ -365,10 +376,10 @@ class HangmanApi(remote.Service):
                       name='get_user_rankings',
                       http_method='GET'
                       )
-    def get_user_rankings(self):
+    def get_user_rankings(self, request):
         """Get users win rate ranking.
         Args:
-            None.
+            request: None.
         Returns:
             UserForms: All the fields in UserForm that contains information about each user,
             sorted by the highest win ratio. If 2 players have the same win ratio, the player
@@ -376,7 +387,7 @@ class HangmanApi(remote.Service):
         Raises:
             endpoints.NotFoundException: If no users with wins > 0 can be found.
         """
-        users = User.query(User.win_ratio > 0).order(-User.win_ratio, User.total_played)
+        users = User.query(User.win_ratio > 0.0).order(-User.win_ratio, User.total_played)
         # Raise an exception if no users are found.
         if not users:
             raise endpoints.NotFoundException('Cannot find any users!')
@@ -403,17 +414,17 @@ class HangmanApi(remote.Service):
         if game:
             return GameHistory(move=str(game.move_history))
         else:
-            raise endpoints.NotFoundException('Game {} not Found!'.format(game.name))
+            raise endpoints.NotFoundException('Game not Found!')
 
     @staticmethod
     def _cache_average_attempts():
         """Populates memcache with the average moves remaining of Games."""
-        games = Game.query(Game.game_over == False).fetch()
+        games = Game.query(Game.game_over == False)
         if games:
-            count = len(games)
+            count = games.count()
             total_attempts_remaining = sum([game.attempts_remaining
                                             for game in games])
-            average = float(total_attempts_remaining) / count
+            average = total_attempts_remaining / float(count)
             memcache.set(MEMCACHE_MOVES_REMAINING,
                          'The average moves remaining is {:.2f}'.format(average))
 

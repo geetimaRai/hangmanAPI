@@ -1,8 +1,8 @@
 from datetime import date
-from protorpc import messages
-from google.appengine.ext import ndb
 
+from google.appengine.ext import ndb
 from models.score import Score
+from protorpc import messages
 
 
 class Game(ndb.Model):
@@ -68,8 +68,7 @@ class Game(ndb.Model):
         score = Score(
                 user=self.user, date=date.today(), won=won,
                 attempts_used=self.attempts - self.attempts_remaining,
-                attempts=self.attempts,
-                answer=self.answer)
+                attempts=self.attempts)
         score.put()
 
 
